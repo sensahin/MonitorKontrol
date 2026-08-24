@@ -1,0 +1,35 @@
+{
+  "configurations" : [
+    {
+      "id" : "A4F3F060-777F-4CE8-B82F-BAEA28547C31",
+      "name" : "Connected hardware",
+      "options" : {
+
+      }
+    }
+  ],
+  "defaultOptions" : {
+    "environmentVariableEntries" : [
+      {
+        "key" : "MONITORKONTROL_HARDWARE_QA",
+        "value" : "1"
+      }
+    ],
+    "targetForVariableExpansion" : {
+      "containerPath" : "container:MonitorKontrol.xcodeproj",
+      "identifier" : "A40B694D303C57FC00B21BDF",
+      "name" : "MonitorKontrol"
+    },
+    "testTimeoutsEnabled" : true
+  },
+  "testTargets" : [
+    {
+      "target" : {
+        "containerPath" : "container:MonitorKontrol.xcodeproj",
+        "identifier" : "A40B695A303C57FD00B21BDF",
+        "name" : "MonitorKontrolTests"
+      }
+    }
+  ],
+  "version" : 1
+}

@@ -1,0 +1,57 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  build-and-unit-test:
+    runs-on: macos-26
+    timeout-minutes: 20
+    env:
+      DEVELOPER_DIR: /Applications/Xcode_26.6.app/Contents/Developer
+      MONITORKONTROL_HARDWARE_QA: "0"
+
+    steps:
+      - name: Check out source
+        uses: actions/checkout@d23441a48e516b6c34aea4fa41551a30e30af803 # v6.1.0
+        with:
+          persist-credentials: false
+
+      - name: Verify pinned toolchain
+        run: |
+          test "$(uname -m)" = arm64
+          test -d "$DEVELOPER_DIR"
+          xcodebuild -version
+
+      - name: Build unsigned Release app
+        run: |
+          xcodebuild -project MonitorKontrol.xcodeproj \
+            -scheme MonitorKontrol \
+            -configuration Release \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData-Build" \
+            CODE_SIGNING_ALLOWED=NO \
+            CLANG_ENABLE_CODE_COVERAGE=NO \
+            build
+
+      - name: Run hardware-free unit tests
+        run: |
+          xcodebuild -project MonitorKontrol.xcodeproj \
+            -scheme MonitorKontrol \
+            -configuration Debug \
+            -destination 'platform=macOS,arch=arm64' \
+            -derivedDataPath "$RUNNER_TEMP/DerivedData-Tests" \
+            CODE_SIGNING_ALLOWED=NO \
+            CLANG_ENABLE_CODE_COVERAGE=NO \
+            -only-testing:MonitorKontrolTests/DDCPacketTests \
+            -only-testing:MonitorKontrolTests/DisplayModelTests \
+            test
